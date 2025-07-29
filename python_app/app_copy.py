@@ -1,53 +1,67 @@
 
 import pandas as pd
 from sqlalchemy import create_engine
- 
-def library_transformation():
 
-    #function to load and clean data
-    def load_and_clean_csv(path, primary_key):
+ #function to load and clean data
+def load_and_clean_csv(path, primary_key):
+    """
+    Loads a CSV file, cleans column names, and checks for duplicate primary keys and removed null primary keys.
+
+    Parameters:
+        path (str): Path to the CSV file.
+        primary_key (str): Column name to check for duplicates.
+
+    Returns:
+        pd.DataFrame: Cleaned DataFrame.
+    """
+    # Load the CSV
+    df = pd.read_csv(path, header=0, skiprows=0)
+
+    # Clean column names: strip, lowercase, replace spaces with underscores
+    df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')
+
+    df = df[df[primary_key].notna()]
+
+    # Check for duplicates in the primary key
+    if df[primary_key].duplicated().any():
+        print(f"Warning: Duplicate values found in primary key column '{primary_key}'")
+        print(df[df[primary_key].duplicated(keep=False)])
+
+    return df
+
+# Convert 'maximum_days_to_borrow' to number of days
+def parse_borrow_period(period):
+    if pd.isna(period):
+        return None
+    period = str(period).lower().strip()
+    if 'week' in period:
+        num = int(period.split()[0])
+        return num * 7
+    elif 'day' in period:
+        num = int(period.split()[0])
+        return num
+    return None
+
+def save_to_sql(df, table_name, engine, if_exists='replace'):
         """
-        Loads a CSV file, cleans column names, and checks for duplicate primary keys and removed null primary keys.
+        Saves a DataFrame to a SQL table using SQLAlchemy.
 
         Parameters:
-            path (str): Path to the CSV file.
-            primary_key (str): Column name to check for duplicates.
-
-        Returns:
-            pd.DataFrame: Cleaned DataFrame.
+            df (pd.DataFrame): The DataFrame to save.
+            table_name (str): Name of the SQL table.
+            engine (sqlalchemy.Engine): SQLAlchemy engine object.
+            if_exists (str): What to do if the table exists ('fail', 'replace', 'append').
         """
-        # Load the CSV
-        df = pd.read_csv(path, header=0, skiprows=0)
-
-        # Clean column names: strip, lowercase, replace spaces with underscores
-        df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')
-
-        df = df[df[primary_key].notna()]
-
-        # Check for duplicates in the primary key
-        if df[primary_key].duplicated().any():
-            print(f"Warning: Duplicate values found in primary key column '{primary_key}'")
-            print(df[df[primary_key].duplicated(keep=False)])
-
-        return df
+        try:
+            df.to_sql(table_name, con=engine, if_exists=if_exists, index=False)
+            print(f"Saved '{table_name}' to database.")
+        except Exception as e:
+            print(f"Failed to save '{table_name}': {e}")
 
 
+def main():
     books = load_and_clean_csv('../Data/03_Library Systembook.csv', primary_key='id')
     customers = load_and_clean_csv('../Data/03_Library SystemCustomers.csv', primary_key='customer_id')
-
-
-    # Convert 'maximum_days_to_borrow' to number of days
-    def parse_borrow_period(period):
-        if pd.isna(period):
-            return None
-        period = str(period).lower().strip()
-        if 'week' in period:
-            num = int(period.split()[0])
-            return num * 7
-        elif 'day' in period:
-            num = int(period.split()[0])
-            return num
-        return None
 
 
     books_ideal = (
@@ -114,25 +128,6 @@ def library_transformation():
             .reset_index()
     )
 
-
-
-    def save_to_sql(df, table_name, engine, if_exists='replace'):
-        """
-        Saves a DataFrame to a SQL table using SQLAlchemy.
-
-        Parameters:
-            df (pd.DataFrame): The DataFrame to save.
-            table_name (str): Name of the SQL table.
-            engine (sqlalchemy.Engine): SQLAlchemy engine object.
-            if_exists (str): What to do if the table exists ('fail', 'replace', 'append').
-        """
-        try:
-            df.to_sql(table_name, con=engine, if_exists=if_exists, index=False)
-            print(f"Saved '{table_name}' to database.")
-        except Exception as e:
-            print(f"Failed to save '{table_name}': {e}")
-
-
     # Create a SQLite database in the current directory
     engine = create_engine('sqlite:///library.db')
 
@@ -148,4 +143,22 @@ def library_transformation():
 
 
 if __name__ == '__main__':
-    library_transformation()
+    main()
+
+
+# Class Template
+class dataCleaner():
+    def __init__(self, filepath):
+        loadCSV(filepath)
+        self.books_ideal = []
+
+    def myFunctions(self):
+        pass
+
+    def main(self):
+        self.variableMyFunction * 2
+    
+
+if __name__ == '__main__':
+    data_loader = dataCleaner('filepath')
+    data_loader.startClean()

@@ -1,0 +1,9 @@
+customer_pk,customer_name,total_books_borrowed,first_checkout_date,last_return_date
+1,Jane Doe,3,2023-02-20,2023-05-01
+2,John Smith,5,2023-03-24,2023-06-20
+3,Dan Reeves,3,2023-03-29,2023-06-04
+5,William Holden,2,2023-04-02,2023-06-07
+6,Jaztyn Forest,1,2063-04-10,2023-04-03
+7,Jackie Irving,2,2023-04-15,2023-04-16
+8,Matthew Stirling,1,2023-04-23,2023-04-27
+9,Emory Ted,1,2023-05-01,2023-05-10
