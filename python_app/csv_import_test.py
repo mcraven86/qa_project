@@ -8,7 +8,7 @@ class TestDataCleaner(unittest.TestCase):
     def setUp(self):
         self.cleaner = dataCleaner()
 
-    @patch('pd.read_csv')
+    @patch('pandas.read_csv')
     def test_column_cleaning_and_null_removal(self, mock_read_csv):
         # Create a mock DataFrame with messy column names and a null primary key
         test_data = pd.DataFrame({
